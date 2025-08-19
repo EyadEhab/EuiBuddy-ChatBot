@@ -226,29 +226,3 @@ The chatbot uses a hard-coded, immutable knowledge base containing:
 - **Results Guidance**: Portal access, discrepancy procedures, transcript requests
 
 All factual responses include a disclaimer: "(Double-check the official EUI pages; details may change.)"
-
-## Limitations
-
-- **No External Dependencies**: Uses only standard Scala library as per requirements
-- **Rule-Based**: Uses pattern matching rather than machine learning for intent classification
-- **Hard-Coded Knowledge**: Information is static and embedded in the code
-- **CLI Only**: Command-line interface only (no GUI)
-- **English Only**: Primarily English language support
-
-## Future Enhancements
-
-- Arabic language support for keywords
-- More sophisticated natural language processing
-- Integration with external APIs for real-time information
-- Web-based interface
-- Persistent conversation history
-- Machine learning-based intent classification
-
-## License
-
-This project is developed as part of the CS219 Advanced Programming course at EUI.
-
-## Author
-
-**Manus AI** - CS219 Chatbot Project Implementation
-
