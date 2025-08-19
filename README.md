@@ -44,41 +44,28 @@ All transformations are performed using pure functions, ensuring predictability 
 ## Requirements
 
 - Java 11 or higher
-- Scala 3.3.0
+- Scala 3.4.1
 - sbt (Scala Build Tool)
 
 ## Installation & Setup
 
 1. **Install Scala and sbt** (if not already installed):
-   ```bash
-   curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs
-   chmod +x cs
-   ./cs setup --yes
-   export PATH="$PATH:$HOME/.local/share/coursier/bin"
-   ```
+   Install the latest LTS java jdk from <br>https://adoptium.net/temurin/releases<br>
+   and the latest sbt from <br>https://www.scala-sbt.org/download/
 
-2. **Clone or extract the project**:
+3. **Clone or extract the project**:
+   <br>open cmd
    ```bash
-   cd euibuddy-chatbot
+   git clone https://github.com/EyadEhab/EuiBuddy-ChatBot.git
+   cd EuiBuddy-ChatBot
    ```
-
-3. **Compile the project**:
-   ```bash
-   sbt compile
-   ```
-
-4. **Run tests**:
-   ```bash
-   sbt test
-   ```
-
+   
 ## Usage
 
-### Running the Chatbot
-
-```bash
-sbt run
-```
+### Running the Chatbot ( It will take time in the first run only )
+   ```bash
+   sbt run
+   ```
 
 ### Interactive Commands
 
@@ -226,29 +213,3 @@ The chatbot uses a hard-coded, immutable knowledge base containing:
 - **Results Guidance**: Portal access, discrepancy procedures, transcript requests
 
 All factual responses include a disclaimer: "(Double-check the official EUI pages; details may change.)"
-
-## Limitations
-
-- **No External Dependencies**: Uses only standard Scala library as per requirements
-- **Rule-Based**: Uses pattern matching rather than machine learning for intent classification
-- **Hard-Coded Knowledge**: Information is static and embedded in the code
-- **CLI Only**: Command-line interface only (no GUI)
-- **English Only**: Primarily English language support
-
-## Future Enhancements
-
-- Arabic language support for keywords
-- More sophisticated natural language processing
-- Integration with external APIs for real-time information
-- Web-based interface
-- Persistent conversation history
-- Machine learning-based intent classification
-
-## License
-
-This project is developed as part of the CS219 Advanced Programming course at EUI.
-
-## Author
-
-**Manus AI** - CS219 Chatbot Project Implementation
-
