@@ -44,7 +44,7 @@ All transformations are performed using pure functions, ensuring predictability 
 ## Requirements
 
 - Java 11 or higher
-- Scala 3.3.0
+- Scala 3.4.1
 - sbt (Scala Build Tool)
 
 ## Installation & Setup
