@@ -50,35 +50,23 @@ All transformations are performed using pure functions, ensuring predictability 
 ## Installation & Setup
 
 1. **Install Scala and sbt** (if not already installed):
-   ```bash
-   curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs
-   chmod +x cs
-   ./cs setup --yes
-   export PATH="$PATH:$HOME/.local/share/coursier/bin"
-   ```
+   Install the latest LTS java jdk from https://adoptium.net/temurin/releases
+   and the latest sbt from https://www.scala-sbt.org/download/
 
-2. **Clone or extract the project**:
+3. **Clone or extract the project**:
+   open cmd
    ```bash
-   cd euibuddy-chatbot
+   git clone https://github.com/EyadEhab/EuiBuddy-ChatBot.git
+   cd EuiBuddy-ChatBot
    ```
-
-3. **Compile the project**:
-   ```bash
-   sbt compile
-   ```
-
-4. **Run tests**:
-   ```bash
-   sbt test
-   ```
-
+   
 ## Usage
 
 ### Running the Chatbot
-
-```bash
-sbt run
-```
+**run the project**:
+   ```bash
+   sbt run
+   ```
 
 ### Interactive Commands
 
