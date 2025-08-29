@@ -1,81 +1,96 @@
 package com.euibuddy.service
 
 import com.euibuddy.model.*
-import com.euibuddy.data.KnowledgeBase
+import com.euibuddy.data.{KnowledgeBase, KnowledgeBaseArabic}
 
 object ChatService {
+  // Added a comment to force recompilation
   
   // Input processing functions
   def tokenize(text: String): List[String] = {
+    // Split by whitespace, preserving Arabic characters
     text.split("\\s+").toList.filter(_.nonEmpty)
   }
   
   def normalize(tokens: List[String]): List[String] = {
-    tokens.map(_.toLowerCase.trim.replaceAll("[^a-zA-Z0-9]", ""))
+    // Normalize tokens: convert to lowercase, trim, and remove non-alphanumeric characters
+    // For Arabic, we need to be careful not to remove Arabic characters. 
+    // Scala's toLowerCase works for Arabic, and we'll adjust regex to keep Arabic letters.
+    tokens.map(_.toLowerCase.trim.replaceAll("[^a-zA-Z0-9\\u0600-\\u06FF]", "")) // \\u0600-\\u06FF is the Unicode range for Arabic characters
       .filter(_.nonEmpty)
   }
   
   // Intent classification function
-  def classifyIntent(normalizedTokens: List[String]): Intent = {
+  def classifyIntent(normalizedTokens: List[String]): List[Intent] = {
     val tokenSet = normalizedTokens.toSet
-    
+    var intents = List.empty[Intent]
+
     // Greeting patterns
     if (tokenSet.intersect(Set("hello", "hi", "hey", "greetings", "good")).nonEmpty) {
-      Greeting
+      intents = intents :+ Greeting
     }
     // Help patterns
-    else if (tokenSet.intersect(Set("help", "assist", "support", "guide")).nonEmpty) {
-      Help
+    if (tokenSet.intersect(Set("help", "assist", "support", "guide")).nonEmpty) {
+      intents = intents :+ Help
     }
     // Campus location patterns
-    else if (tokenSet.intersect(Set("where", "location", "campus", "address", "find")).nonEmpty &&
-             tokenSet.intersect(Set("campus", "university", "eui", "building")).nonEmpty) {
-      CampusLocation
+    if (tokenSet.intersect(Set("where", "location", "campus", "address", "find")).nonEmpty &&
+        tokenSet.intersect(Set("campus", "university", "eui", "building")).nonEmpty) {
+      intents = intents :+ CampusLocation
     }
     // Faculty information patterns
-    else if (tokenSet.intersect(Set("faculty", "department", "college", "school")).nonEmpty ||
-             tokenSet.intersect(Set("cis", "engineering", "business", "design", "informatics")).nonEmpty) {
+    if (tokenSet.intersect(Set("faculty", "department", "college", "school")).nonEmpty ||
+        tokenSet.intersect(Set("cis", "engineering", "business", "design", "informatics", "art", "digital", "bis", "management")).nonEmpty) {
+
+      if (tokenSet.contains("cis") || tokenSet.contains("computer") || tokenSet.intersect(Set("information", "systems")).nonEmpty) {
+        intents = intents :+ FacultyInfo("cis")
+      }
+      if (tokenSet.contains("engineering") || tokenSet.intersect(Set("civil", "mechanical", "electrical")).nonEmpty) {
+        intents = intents :+ FacultyInfo("engineering")
+      }
+      if (tokenSet.intersect(Set("business", "informatics", "management" ,"bis")).nonEmpty) {
+        intents = intents :+ FacultyInfo("business")
+      }
+      // Specific check for "Digital Arts & Design"
+      if (tokenSet.contains("design") || tokenSet.contains("digital") || tokenSet.contains("arts") || tokenSet.intersect(Set("graphic", "animation")).nonEmpty) {
+        intents = intents :+ FacultyInfo("design")
+      }
       
-      if (tokenSet.contains("cis") || tokenSet.intersect(Set("computer", "information", "systems")).nonEmpty) {
-        FacultyInfo("cis")
-      } else if (tokenSet.contains("engineering") || tokenSet.intersect(Set("civil", "mechanical", "electrical")).nonEmpty) {
-        FacultyInfo("engineering")
-      } else if (tokenSet.intersect(Set("business", "informatics", "management")).nonEmpty) {
-        FacultyInfo("business")
-      } else if (tokenSet.intersect(Set("design", "arts", "digital", "graphic", "animation")).nonEmpty) {
-        FacultyInfo("design")
-      } else {
-        FacultyInfo("general")
+      // General faculty info if no specific faculty is mentioned but faculty-related terms are present
+      if (intents.filter(_.isInstanceOf[FacultyInfo]).isEmpty && tokenSet.intersect(Set("faculty", "department", "college", "school")).nonEmpty) {
+        intents = intents :+ FacultyInfo("general")
       }
     }
     // Contact information patterns
-    else if (tokenSet.intersect(Set("contact", "phone", "email", "hotline", "call", "reach")).nonEmpty) {
-      Contacts
+    if (tokenSet.intersect(Set("contact", "phone", "email", "hotline", "call", "reach")).nonEmpty) {
+      intents = intents :+ ContactInfo("general")
     }
     // Results guidance patterns
-    else if (tokenSet.intersect(Set("results", "grades", "marks", "scores", "transcript")).nonEmpty) {
-      ResultsGuidance
+    if (tokenSet.intersect(Set("results", "grades", "marks", "scores", "transcript")).nonEmpty) {
+      intents = intents :+ ResultsInfo("general")
     }
     // Study plan patterns
-    else if (tokenSet.intersect(Set("study", "plan", "curriculum", "courses", "prerequisites", "program")).nonEmpty) {
-      StudyPlanGuidance
+    if (tokenSet.intersect(Set("study", "plan", "curriculum", "courses", "prerequisites", "program")).nonEmpty) {
+      intents = intents :+ StudyPlanInfo("general")
     }
     // GPA calculation patterns
-    else if (tokenSet.intersect(Set("gpa", "calculate", "grade", "point", "average")).nonEmpty) {
-      GPAQuery
+    if (tokenSet.intersect(Set("gpa", "calculate", "grade", "point", "average")).nonEmpty) {
+      intents = intents :+ GPAQuery
     }
     // Analytics patterns
-    else if (tokenSet.intersect(Set("analytics", "statistics", "stats", "interactions", "log")).nonEmpty) {
-      AnalyticsQuery
+    if (tokenSet.intersect(Set("analytics", "statistics", "stats", "interactions", "log")).nonEmpty) {
+      intents = intents :+ AnalyticsQuery
     }
-    // Fallback for unrecognized input
-    else {
-      Fallback
+
+    if (intents.isEmpty) {
+      List(Fallback)
+    } else {
+      intents
     }
   }
   
   // Response generation function
-  def generateResponse(intent: Intent): String = {
+  def generateResponse(intent: Intent, chatState: ChatState): String = {
     intent match {
       case Greeting =>
         "Hello! I'm EUIBuddy, your campus assistant. I can help you with information about EUI faculties, campus location, contacts, study plans, GPA calculations, and more. How can I assist you today?"
@@ -100,7 +115,7 @@ object ChatService {
           case Some(info) =>
             s"""Faculty: ${info("name")}
                |Location: ${info("location")}
-               |Programs: ${info("programs")}
+               |Programs: ${info("programs").asInstanceOf[List[String]].mkString(", ")}
                |Dean: ${info("dean")}
                |Contact: ${info("contact")}
                |${KnowledgeBase.disclaimer}""".stripMargin
@@ -113,31 +128,26 @@ object ChatService {
                |${KnowledgeBase.disclaimer}""".stripMargin
         }
       
-      case Contacts =>
-        s"""EUI Contact Information:
-           |Main Hotline: ${KnowledgeBase.contactInfo("main_hotline")}
-           |Admissions: ${KnowledgeBase.contactInfo("admissions")}
-           |Student Affairs: ${KnowledgeBase.contactInfo("student_affairs")}
-           |Academic Office: ${KnowledgeBase.contactInfo("academic_office")}
-           |Website: ${KnowledgeBase.contactInfo("website")}
-           |Emergency: ${KnowledgeBase.contactInfo("emergency")}
-           |${KnowledgeBase.disclaimer}""".stripMargin
+      case ContactInfo(infoType) =>
+        (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).contactInfo.get(infoType) match {
+          case Some(info) =>
+            val label = (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).contactInfo.getOrElse(s"${infoType}_label", infoType.replace("_", " "))
+            s"${(if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).contactInfo("title")}\n$label: $info"
+          case None => (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).resultsInfo("not_found")
+        }
       
-      case ResultsGuidance =>
-        s"""Results Information:
-           |${KnowledgeBase.resultsInfo("access")}
-           |${KnowledgeBase.resultsInfo("discrepancies")}
-           |${KnowledgeBase.resultsInfo("transcripts")}
-           |${KnowledgeBase.resultsInfo("gpa_policy")}
-           |${KnowledgeBase.disclaimer}""".stripMargin
+      case ResultsInfo(infoType) =>
+        (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).resultsInfo.get(infoType) match {
+          case Some(info) => s"${(if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).resultsInfo("title")}\n${info}"
+          case None => (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).resultsInfo("not_found")
+        }
       
-      case StudyPlanGuidance =>
-        s"""Study Plan Information:
-           |${KnowledgeBase.studyPlanInfo("structure")}
-           |${KnowledgeBase.studyPlanInfo("prerequisites")}
-           |${KnowledgeBase.studyPlanInfo("credit_hours")}
-           |${KnowledgeBase.studyPlanInfo("advisor_contact")}
-           |${KnowledgeBase.disclaimer}""".stripMargin
+      case StudyPlanInfo(infoType) =>
+        (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).studyPlanInfo.get(infoType.toString) match {
+          case Some(studyInfo) =>
+            (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).studyPlanInfo("title") + "\n" + studyInfo.toString
+          case None => (if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase).resultsInfo("not_found")
+        }
       
       case GPAQuery =>
         """GPA Calculation Help:
@@ -229,7 +239,7 @@ object ChatService {
     // This is a simplified version - in a real implementation, we'd need to store the intent with each message
     // For now, we'll analyze the user text to infer intents
     val intentCounts = log
-      .map(message => classifyIntent(normalize(tokenize(message.userText))))
+      .map(message => ChatService.classifyIntent(ChatService.normalize(ChatService.tokenize(message.userText))))
       .groupBy(identity)
       .view.mapValues(_.length)
       .toList

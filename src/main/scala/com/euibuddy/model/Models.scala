@@ -6,9 +6,9 @@ case object Greeting extends Intent
 case object Help extends Intent
 case object CampusLocation extends Intent
 case class FacultyInfo(facultyName: String) extends Intent
-case object Contacts extends Intent
-case object ResultsGuidance extends Intent
-case object StudyPlanGuidance extends Intent
+case class ContactInfo(infoType: String) extends Intent
+case class ResultsInfo(infoType: String) extends Intent
+case class StudyPlanInfo(infoType: String) extends Intent
 case object GPAQuery extends Intent
 case object AnalyticsQuery extends Intent
 case object Fallback extends Intent
@@ -36,7 +36,8 @@ case class ChatState(
   interactionLog: InteractionLog,
   sequenceCounter: Int = 0,
   cumulativeCourses: List[Course] = List.empty,
-  cumulativeGPA: Option[Double] = None
+  cumulativeGPA: Option[Double] = None,
+  language: String = "english"
 )
 
 // Object for GPA calculation constants

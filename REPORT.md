@@ -2,7 +2,7 @@
 
 **Course**: CS219 Advanced Programming  
 **Project**: Summer Mini-Project - Campus & Faculties Helper  
-**Author**: Manus AI  
+**Author**: DEDSEC  
 **Date**: August 2025
 
 ## Executive Summary
@@ -282,21 +282,7 @@ The EUIBuddy chatbot project successfully demonstrates the application of advanc
 The project highlights several key insights:
 
 1. **Functional Programming Effectiveness**: Pure functions and immutable data structures significantly enhance code quality and reliability
-2. **Type System Benefits**: Scala 3's advanced type system provides excellent compile-time guarantees
-3. **Pattern Matching Power**: Exhaustive pattern matching ensures robust handling of all cases
-4. **Testing Advantages**: Pure functions are inherently more testable than stateful alternatives
+2. **Pattern Matching Power**: Exhaustive pattern matching ensures robust handling of all cases
+3. **Testing Advantages**: Pure functions are inherently more testable than stateful alternatives
 
 The implementation serves as a solid foundation for future enhancements and demonstrates the practical application of functional programming concepts in real-world software development.
-
-## 8. Future Work
-
-Potential enhancements that could build upon this functional foundation include:
-
-- **Enhanced NLP**: Integration with external NLP libraries while maintaining functional principles
-- **Persistent Storage**: Functional database integration for conversation history
-- **Concurrent Processing**: Leveraging Scala's actor model for concurrent user sessions
-- **Type-Safe Configuration**: Using refined types for configuration management
-- **Functional Reactive Programming**: Event-driven architecture for real-time updates
-
-These enhancements would further demonstrate the scalability and flexibility of functional programming approaches in complex software systems.
-
