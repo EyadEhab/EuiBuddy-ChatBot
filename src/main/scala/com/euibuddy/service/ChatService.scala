@@ -18,6 +18,19 @@ object ChatService {
     // Scala's toLowerCase works for Arabic, and we'll adjust regex to keep Arabic letters.
     tokens.map(_.toLowerCase.trim.replaceAll("[^a-zA-Z0-9\\u0600-\\u06FF]", "")) // \\u0600-\\u06FF is the Unicode range for Arabic characters
       .filter(_.nonEmpty)
+      .map { token =>
+        // Map Arabic commands to English equivalents
+        token match {
+          case "خروج" | "انهاء" | "انتهيت" => "quit"
+          case "تغييراللغة" | "تغيير_اللغة" | "تغييرلغة" => "change_language"
+          case "مرحبا" | "اهلا" | "السلامعليكم" | "السلام_عليكم" => "hi"
+          case "حاسبات" | "كليةالحاسبات" | "كلية_الحاسبات" => "cis"
+          case "تجارة" | "كليةالتجارة" | "كلية_التجارة" => "business"
+          case "هندسة" | "كليةالهندسة" | "كلية_الهندسة" => "engineering"
+          case "تصميم" | "فنون" | "فنونتصميم" => "design"
+          case _ => token
+        }
+      }
   }
   
   // Intent classification function
@@ -26,7 +39,7 @@ object ChatService {
     var intents = List.empty[Intent]
 
     // Greeting patterns
-    if (tokenSet.intersect(Set("hello", "hi", "hey", "greetings", "good")).nonEmpty) {
+    if (tokenSet.intersect(Set("hello", "hi", "hey", "greetings", "good", "مرحبا", "اهلا", "السلامعليكم")).nonEmpty) {
       intents = intents :+ Greeting
     }
     // Help patterns
@@ -40,19 +53,19 @@ object ChatService {
     }
     // Faculty information patterns
     if (tokenSet.intersect(Set("faculty", "department", "college", "school")).nonEmpty ||
-        tokenSet.intersect(Set("cis", "engineering", "business", "design", "informatics", "art", "digital", "bis", "management")).nonEmpty) {
+        tokenSet.intersect(Set("cis", "engineering", "business", "design", "informatics", "art", "digital", "bis", "management", "حاسبات", "تجارة", "هندسة", "تصميم")).nonEmpty) {
 
-      if (tokenSet.contains("cis") || tokenSet.contains("computer") || tokenSet.intersect(Set("information", "systems")).nonEmpty) {
+      if (tokenSet.contains("cis") || tokenSet.contains("computer") || tokenSet.intersect(Set("information", "systems", "حاسبات")).nonEmpty) {
         intents = intents :+ FacultyInfo("cis")
       }
-      if (tokenSet.contains("engineering") || tokenSet.intersect(Set("civil", "mechanical", "electrical")).nonEmpty) {
+      if (tokenSet.contains("engineering") || tokenSet.intersect(Set("civil", "mechanical", "electrical", "هندسة")).nonEmpty) {
         intents = intents :+ FacultyInfo("engineering")
       }
-      if (tokenSet.intersect(Set("business", "informatics", "management" ,"bis")).nonEmpty) {
+      if (tokenSet.intersect(Set("business", "informatics", "management", "bis", "تجارة")).nonEmpty) {
         intents = intents :+ FacultyInfo("business")
       }
       // Specific check for "Digital Arts & Design"
-      if (tokenSet.contains("design") || tokenSet.contains("digital") || tokenSet.contains("arts") || tokenSet.intersect(Set("graphic", "animation")).nonEmpty) {
+      if (tokenSet.contains("design") || tokenSet.contains("digital") || tokenSet.contains("arts") || tokenSet.intersect(Set("graphic", "animation", "تصميم")).nonEmpty) {
         intents = intents :+ FacultyInfo("design")
       }
       
@@ -91,41 +104,82 @@ object ChatService {
   
   // Response generation function
   def generateResponse(intent: Intent, chatState: ChatState): String = {
+    val knowledgeBase = if (chatState.language == "arabic") KnowledgeBaseArabic else KnowledgeBase
+    
     intent match {
       case Greeting =>
-        "Hello! I'm EUIBuddy, your campus assistant. I can help you with information about EUI faculties, campus location, contacts, study plans, GPA calculations, and more. How can I assist you today?"
+        if (chatState.language == "arabic") {
+          "مرحباً! أنا EUIBuddy، مساعدك الجامعي. يمكنني مساعدتك بمعلومات عن كليات EUI، موقع الحرم الجامعي، جهات الاتصال، خطط الدراسة، حساب المعدل التراكمي، والمزيد. كيف يمكنني مساعدتك اليوم؟"
+        } else {
+          "Hello! I'm EUIBuddy, your campus assistant. I can help you with information about EUI faculties, campus location, contacts, study plans, GPA calculations, and more. How can I assist you today?"
+        }
       
       case Help =>
-        """I can help you with:
-          |• Campus location and directions
-          |• Faculty information (CIS, Engineering, Business Informatics, Digital Arts & Design)
-          |• Contact information and official channels
-          |• Study plan guidance and prerequisites
-          |• Results and transcript information
-          |• GPA calculations
-          |• Interaction analytics
-          |
-          |Just ask me about any of these topics!""".stripMargin
+        if (chatState.language == "arabic") {
+          """يمكنني مساعدتك في:
+            |• موقع الحرم الجامعي والاتجاهات
+            |• معلومات الكليات (الحاسبات، الهندسة، معلوماتية الأعمال، الفنون الرقمية والتصميم)
+            |• معلومات الاتصال والقنوات الرسمية
+            |• إرشادات خطة الدراسة والمتطلبات الأساسية
+            |• معلومات النتائج والسجلات الرسمية
+            |• حساب المعدل التراكمي
+            |• تحليلات التفاعل
+            |
+            |فقط اسألني عن أي من هذه المواضيع!""".stripMargin
+        } else {
+          """I can help you with:
+            |• Campus location and directions
+            |• Faculty information (CIS, Engineering, Business Informatics, Digital Arts & Design)
+            |• Contact information and official channels
+            |• Study plan guidance and prerequisites
+            |• Results and transcript information
+            |• GPA calculations
+            |• Interaction analytics
+            |
+            |Just ask me about any of these topics!""".stripMargin
+        }
       
       case CampusLocation =>
-        s"${KnowledgeBase.campusInfo("location")} ${KnowledgeBase.campusInfo("address")} ${KnowledgeBase.disclaimer}"
+        if (chatState.language == "arabic") {
+          s"${knowledgeBase.campusInfo("location")} ${knowledgeBase.campusInfo("address")} ${knowledgeBase.disclaimer}"
+        } else {
+          s"${knowledgeBase.campusInfo("location")} ${knowledgeBase.campusInfo("address")} ${knowledgeBase.disclaimer}"
+        }
       
       case FacultyInfo(facultyName) =>
-        KnowledgeBase.facultyInfo.get(facultyName) match {
+        knowledgeBase.facultyInfo.get(facultyName) match {
           case Some(info) =>
-            s"""Faculty: ${info("name")}
-               |Location: ${info("location")}
-               |Programs: ${info("programs").asInstanceOf[List[String]].mkString(", ")}
-               |Dean: ${info("dean")}
-               |Contact: ${info("contact")}
-               |${KnowledgeBase.disclaimer}""".stripMargin
+            if (chatState.language == "arabic") {
+              s"""الكلية: ${info("name")}
+                 |الموقع: ${info("location")}
+                 |البرامج: ${info("programs").asInstanceOf[List[String]].mkString(", ")}
+                 |العميد: ${info("dean")}
+                 |الاتصال: ${info("contact")}
+                 |${knowledgeBase.disclaimer}""".stripMargin
+            } else {
+              s"""Faculty: ${info("name")}
+                 |Location: ${info("location")}
+                 |Programs: ${info("programs").asInstanceOf[List[String]].mkString(", ")}
+                 |Dean: ${info("dean")}
+                 |Contact: ${info("contact")}
+                 |${knowledgeBase.disclaimer}""".stripMargin
+            }
           case None =>
-            s"""EUI has four main faculties:
-               |• Computer and Information Systems (CIS)
-               |• Engineering
-               |• Business Informatics
-               |• Digital Arts & Design
-               |${KnowledgeBase.disclaimer}""".stripMargin
+            if (chatState.language == "arabic") {
+              s"""جامعة EUI لديها أربع كليات رئيسية:
+                 |• كلية الحاسبات ونظم المعلومات (CIS)
+                 |• كلية الهندسة
+                 |• كلية معلوماتية الأعمال
+                 |• كلية الفنون الرقمية والتصميم
+                 |${knowledgeBase.disclaimer}""".stripMargin
+            } else {
+              s"""EUI has four main faculties:
+                 |• Computer and Information Systems (CIS)
+                 |• Engineering
+                 |• Business Informatics
+                 |• Digital Arts & Design
+                 |${knowledgeBase.disclaimer}""".stripMargin
+            }
         }
       
       case ContactInfo(infoType) =>
@@ -150,20 +204,39 @@ object ChatService {
         }
       
       case GPAQuery =>
-        """GPA Calculation Help:
-          |To calculate your GPA, provide your courses in this format:
-          |Course Name, Credits, Grade (e.g., "Math101, 3, A")
-          |
-          |Supported grades: A+, A, A-, B+, B, B-, C+, C, C-, D+, D, F
-          |Grade scale: A+ = 4.0, A = 3.7, A- = 3.4, B+ = 3.2, B = 3.0, B- = 2.8, C+ = 2.6, C = 2.4, C- = 2.2, D+ = 2.0, D = 1.5,D- = 1.0, F = 0.0
-          |
-          |Enter your courses one by one, or type 'done' when finished.""".stripMargin
+        if (chatState.language == "arabic") {
+          """مساعدة حساب المعدل التراكمي:
+            |لحساب معدلك التراكمي، أدخل مقرراتك بهذا التنسيق:
+            |اسم المقرر، الساعات المعتمدة، الدرجة (مثال: "رياضيات101، 3، A")
+            |
+            |الدرجات المدعومة: ممتاز (A)، جيد جداً (B)، جيد (C)، مقبول (D)، راسب (F)
+            |مقياس الدرجات: ممتاز = 4.0، جيد جداً = 3.0، جيد = 2.0، مقبول = 1.0، راسب = 0.0
+            |
+            |أدخل مقرراتك واحداً تلو الآخر، أو اكتب 'done' عند الانتهاء.""".stripMargin
+        } else {
+          """GPA Calculation Help:
+            |To calculate your GPA, provide your courses in this format:
+            |Course Name, Credits, Grade (e.g., "Math101, 3, A")
+            |
+            |Supported grades: A+, A, A-, B+, B, B-, C+, C, C-, D+, D, F
+            |Grade scale: A+ = 4.0, A = 3.7, A- = 3.4, B+ = 3.2, B = 3.0, B- = 2.8, C+ = 2.6, C = 2.4, C- = 2.2, D+ = 2.0, D = 1.5,D- = 1.0, F = 0.0
+            |
+            |Enter your courses one by one, or type 'done' when finished.""".stripMargin
+        }
       
       case AnalyticsQuery =>
-        "Analytics feature will show interaction statistics. This requires processing the interaction log."
+        if (chatState.language == "arabic") {
+          "سيعرض ميزة التحليلات إحصائيات التفاعل. هذا يتطلب معالجة سجل التفاعلات."
+        } else {
+          "Analytics feature will show interaction statistics. This requires processing the interaction log."
+        }
       
       case Fallback =>
-        "I'm not sure I understand. I can help with campus information, faculty details, contacts, study plans, GPA calculations, and analytics. Type 'help' to see what I can do!"
+        if (chatState.language == "arabic") {
+          "أعتذر، لم أفهم سؤالك. يمكنني مساعدتك بمعلومات عن الحرم الجامعي، تفاصيل الكليات، جهات الاتصال، خطط الدراسة، حساب المعدل التراكمي، والتحليلات. اكتب 'help' لترى ما يمكنني فعله!"
+        } else {
+          "I'm not sure I understand. I can help with campus information, faculty details, contacts, study plans, GPA calculations, and analytics. Type 'help' to see what I can do!"
+        }
     }
   }
   
@@ -198,13 +271,28 @@ object ChatService {
         val name = parts(0)
         val credits = parts(1).toDouble
         val grade = parts(2).toUpperCase
-        if (GPAFormula.gradeToPoints.contains(grade) && credits > 0) {
-          Some(Course(name, credits, grade))
-        } else None
+        
+        // Map Arabic grades to English equivalents
+        val mappedGrade = grade match {
+          case "ممتاز" => "A"
+          case "جيدجدا" | "جيد_جدا" => "B"
+          case "جيد" => "C"
+          case "مقبول" => "D"
+          case "راسب" => "F"
+          case _ => grade
+        }
+        
+        if (GPAFormula.gradeToPoints.contains(mappedGrade) && credits > 0) {
+          Some(Course(name, credits, mappedGrade))
+        } else {
+          None
+        }
       } catch {
         case _: NumberFormatException => None
       }
-    } else None
+    } else {
+      None
+    }
   }
   
   def calculateGPA(courses: List[Course]): Option[Double] = {

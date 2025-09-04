@@ -15,28 +15,28 @@ object KnowledgeBase extends KnowledgeBaseTrait {
       "name" -> "Computer and Information Systems",
       "location" -> "Building A, Floors 2-4",
       "programs" -> List("Computer Science", "Information Systems", "Software Engineering"),
-      "dean" -> "Dr. Ahmed Hassan",
+      "dean" -> "Dr. Hoda Mokhtar",
       "contact" -> "cis@eui.edu.eg"
     ),
     "engineering" -> Map(
       "name" -> "Engineering",
       "location" -> "Building B, Floors 1-3",
       "programs" -> List("Civil Engineering", "Mechanical Engineering", "Electrical Engineering"),
-      "dean" -> "Dr. Mohamed Ali",
+      "dean" -> "Dr. Ashraf Mahran",
       "contact" -> "engineering@eui.edu.eg"
     ),
     "business" -> Map(
       "name" -> "Business Informatics",
       "location" -> "Building C, Floor 2",
       "programs" -> List("Business Administration", "Management Information Systems", "E-Commerce"),
-      "dean" -> "Dr. Sarah Ahmed",
+      "dean" -> "Dr. Mohamed Saleh",
       "contact" -> "business@eui.edu.eg"
     ),
     "design" -> Map(
       "name" -> "Digital Arts & Design",
       "location" -> "Building D, Floors 1-2",
       "programs" -> List("Graphic Design", "Digital Media", "Animation", "Game Design"),
-      "dean" -> "Dr. Layla Ibrahim",
+      "dean" -> "Dr. Ashraf Zaki",
       "contact" -> "design@eui.edu.eg"
     )
   )

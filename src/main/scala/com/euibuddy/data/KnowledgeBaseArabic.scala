@@ -15,28 +15,28 @@ object KnowledgeBaseArabic extends KnowledgeBaseTrait {
       "name" -> "كلية الحاسبات ونظم المعلومات",
       "location" -> "مبنى أ، الطوابق 2-4",
       "programs" -> List("علوم الحاسب", "نظم المعلومات", "هندسة البرمجيات"),
-      "dean" -> "د. أحمد حسن",
+      "dean" -> "د. هدى مختار",
       "contact" -> "cis@eui.edu.eg"
     ),
     "engineering" -> Map(
       "name" -> "كلية الهندسة",
       "location" -> "مبنى ب، الطوابق 1-3",
       "programs" -> List("الهندسة المدنية", "الهندسة الميكانيكية", "الهندسة الكهربائية"),
-      "dean" -> "د. محمد علي",
+      "dean" -> "د. أشرف مهران",
       "contact" -> "engineering@eui.edu.eg"
     ),
     "business" -> Map(
       "name" -> "كلية معلوماتية الأعمال",
       "location" -> "مبنى ج، الطابق 2",
       "programs" -> List("إدارة الأعمال", "نظم معلومات إدارية", "التجارة الإلكترونية"),
-      "dean" -> "د. سارة أحمد",
+      "dean" -> "د. محمد صالح",
       "contact" -> "business@eui.edu.eg"
     ),
     "design" -> Map(
       "name" -> "كلية الفنون الرقمية والتصميم",
       "location" -> "مبنى د، الطوابق 1-2",
       "programs" -> List("التصميم الجرافيكي", "الوسائط الرقمية", "الرسوم المتحركة", "تصميم الألعاب"),
-      "dean" -> "د. ليلى إبراهيم",
+      "dean" -> "د. أشرف زكي",
       "contact" -> "design@eui.edu.eg"
     )
   )
