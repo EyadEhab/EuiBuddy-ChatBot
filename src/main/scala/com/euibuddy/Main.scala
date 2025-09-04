@@ -132,7 +132,7 @@ object Main {
     val optionPane = new JOptionPane(
       promptMessage,
       JOptionPane.QUESTION_MESSAGE,
-      JOptionPane.OK_CANCEL_OPTION,
+      JOptionPane.DEFAULT_OPTION,
       null,
       null,
       null
@@ -150,13 +150,18 @@ object Main {
       case _ => null
     }
     
+    val optionSelected = optionPane.getValue
+
+
+
+    
     // Check for exit conditions
-    val shouldExit = userInput == null || 
-                    userInput.toLowerCase.trim == "quit" || 
+    val shouldExit = (userInput == null && (optionSelected == JOptionPane.CANCEL_OPTION || optionSelected == JOptionPane.CLOSED_OPTION)) || 
+                    (userInput != null && (userInput.toLowerCase.trim == "quit" || 
                     userInput.toLowerCase.trim == "exit" || 
                     userInput.toLowerCase.trim == "q" ||
                     userInput.toLowerCase.trim == "خروج" ||
-                    userInput.toLowerCase.trim == "انهاء"
+                    userInput.toLowerCase.trim == "انهاء"))
     
     if (shouldExit) {
       val exitMessage = state.language match {
@@ -168,8 +173,9 @@ object Main {
         exitMessage,
         "EUIBuddy",
         JOptionPane.INFORMATION_MESSAGE
-      )
-      return
+    )
+    System.exit(0) // Terminate the program
+    return
     }
     
     val newState = 
@@ -223,7 +229,7 @@ object Main {
             null,
             initialGPAResponse,
             "EUIBuddy - GPA Calculation",
-            JOptionPane.QUESTION_MESSAGE
+            JOptionPane.DEFAULT_OPTION
           )
           println()
           
@@ -298,7 +304,7 @@ object Main {
     val optionPane = new JOptionPane(
       promptMessage,
       JOptionPane.QUESTION_MESSAGE,
-      JOptionPane.OK_CANCEL_OPTION,
+      JOptionPane.DEFAULT_OPTION,
       null,
       null,
       null
